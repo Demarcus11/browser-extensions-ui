@@ -27,6 +27,7 @@ type ExtensionCardProps = {
   name: string;
   logo: string;
   isActive: boolean;
+  id: number;
   children: React.ReactNode; // React.ReactNode allows JSX
   onToggle: (checked: boolean) => void;
 };
@@ -100,11 +101,15 @@ const App = () => {
     name,
     logo,
     isActive,
+    id,
     children,
     onToggle,
   }: ExtensionCardProps) => {
     return (
-      <Card className="row-span-2 grid grid-rows-subgrid gap-4 dark:bg-neutral-800">
+      <Card
+        className="row-span-2 grid grid-rows-subgrid gap-4 dark:bg-neutral-800"
+        style={{ viewTransitionName: `card-${id}` }}
+      >
         <CardHeader className="grid grid-cols-[auto_1fr] gap-4">
           <img src={logo} alt="" className="size-13" />
           <div className="space-y-1.5">
@@ -219,17 +224,20 @@ const App = () => {
 
         <div className="grid min-h-screen grid-cols-(--extensions-list-cols) content-start gap-4">
           {filteredExtensions.length ? (
-            filteredExtensions.map(({ logo, name, description, isActive }) => (
-              <ExtensionCard
-                name={name}
-                logo={logo}
-                key={name}
-                isActive={isActive}
-                onToggle={() => toggleExtension(name)}
-              >
-                {description}
-              </ExtensionCard>
-            ))
+            filteredExtensions.map(
+              ({ logo, name, description, isActive, id }) => (
+                <ExtensionCard
+                  name={name}
+                  logo={logo}
+                  id={id}
+                  key={id}
+                  isActive={isActive}
+                  onToggle={() => toggleExtension(name)}
+                >
+                  {description}
+                </ExtensionCard>
+              ),
+            )
           ) : (
             <p className="col-span-full text-center">
               {filter === "active"

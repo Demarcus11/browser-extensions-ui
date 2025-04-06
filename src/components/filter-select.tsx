@@ -1,6 +1,7 @@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { flushSync } from "react-dom";
 
 type FilterSelectProps = {
   filter: string;
@@ -30,11 +31,30 @@ export const FilterSelect = ({ filter, setFilter }: FilterSelectProps) => {
     },
   ];
 
+  const onFilterChange = (value: string) => {
+    // fallback for browsers that dont support view transitions
+    if (!document.startViewTransition) {
+      setFilter(value);
+    }
+
+    // browsers that do support view transitions
+    document.startViewTransition(() => {
+      // flushSync forces React to complete all pending updates synchronously,
+      // normally React batches state updates and processes them asynchronously.
+      // in this case we need flushSync to ensure when startViewTransition takes the "after" screenshot of the DOM
+      // the changes from setFilter are already applied, without it React will batch the update asynchronously causing
+      // the transition to capture an incomplete state.
+      flushSync(() => {
+        setFilter(value);
+      });
+    });
+  };
+
   return (
     <RadioGroup
       className="flex items-center justify-center gap-x-2"
       value={filter}
-      onValueChange={setFilter}
+      onValueChange={onFilterChange}
       defaultValue={filter}
     >
       {filters.map(({ label, value, id }) => (
@@ -46,7 +66,7 @@ export const FilterSelect = ({ filter, setFilter }: FilterSelectProps) => {
               "grid h-9 w-20 place-content-center rounded-full bg-white text-neutral-900 transition-colors hover:bg-neutral-200 dark:bg-neutral-700 dark:text-white dark:hover:bg-neutral-600",
               "peer-focus-visible:ring-2 peer-focus-visible:ring-red-400 dark:peer-focus-visible:border-2 dark:peer-focus-visible:border-neutral-800 dark:peer-focus-visible:bg-neutral-600",
               filter === value &&
-                "bg-red-700 text-white peer-focus-visible:bg-red-700 peer-focus-visible:text-white peer-focus-visible:ring-offset-2 dark:bg-red-500 dark:text-neutral-800 peer-focus-visible:dark:bg-red-700 dark:peer-focus-visible:ring-offset-0 dark:hover:bg-red-400",
+                "bg-red-700 text-white peer-focus-visible:bg-red-700 peer-focus-visible:text-white peer-focus-visible:ring-offset-2 hover:bg-red-400 dark:bg-red-500 dark:text-neutral-800 peer-focus-visible:dark:bg-red-700 dark:peer-focus-visible:ring-offset-0 dark:hover:bg-red-400",
             )}
           >
             {label}

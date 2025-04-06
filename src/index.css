@@ -161,3 +161,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  ::view-transition-group(*) {
+    animation-duration: 250ms;
+  }
+}
